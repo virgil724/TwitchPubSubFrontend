@@ -90,6 +90,10 @@ async function signOut() {
     loading.value = false;
   }
 }
+const connectTwitchBtnHandler = async () => {
+  await updateProfile();
+  window.location = oauthLink.value;
+};
 const sendOauthCode = async () => {
   loading.value = true;
   const router = useRouter();
@@ -163,12 +167,17 @@ onMounted(() => {
         :disabled="loading"
       />
     </div>
-    <div class="my-3" @mouseover="setFalse" @mouseleave="SetTrue">
+    <div
+      v-if="username !== ''"
+      class="my-3"
+      @mouseover="setFalse"
+      @mouseleave="SetTrue"
+    >
       <v-btn
         v-show="ConnectDisable || !TokenCount"
         :disabled="TwitchConnectDisable || loading"
         :color="TwitchConnectDisable ? 'green' : 'primary'"
-        :href="oauthLink"
+        @click="connectTwitchBtnHandler"
         >{{ twitchConnect }}</v-btn
       >
       <v-btn

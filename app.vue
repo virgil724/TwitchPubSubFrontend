@@ -5,6 +5,7 @@ const user = useSupabaseUser();
 <template>
   <v-container style="padding: 50px 0 100px 0">
     <Account v-if="user" />
+    <Donate v-if="user" />
     <Auth v-else />
   </v-container>
 </template>
