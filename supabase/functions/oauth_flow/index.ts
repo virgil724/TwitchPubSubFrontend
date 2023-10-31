@@ -64,13 +64,19 @@ const main = async (req) => {
   }
 
   else if (refresh_pattern.test(url)) {
+    console.log("Refresh Token Flow")
+    const { oldToken } = await req.json();
+    console.log(oldToken);
 
-    const { oldtoken } = await req.json()
-    const { data, error } = supabaseClient.from("TwitchToken").select("refresh_token").eq('access_token', oldtoken)
+    const { data, error } = await supabaseClient.from("TwitchToken").select("refresh_token").eq("access_token",oldToken)
+
+    console.log(data);
+
+
     const token = data[0].refresh_token
     const tokenResp = await refreshOauthToken(app, token)
     if (!tokenResp.ok) {
-      await deleteDBTokenOnAccessToken(oldtoken, supabaseClient)
+      await deleteDBTokenOnAccessToken(oldToken, supabaseClient)
       return new Response(JSON.stringify({ error: "need to ReAuth" }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400
@@ -87,7 +93,7 @@ const main = async (req) => {
         access_token,
         refresh_token,
         scope: scope.join(','),
-      }).eq("access_token", oldtoken).select()
+      }).eq("access_token", oldToken).select()
 
       return new Response(JSON.stringify({ result: "Success" }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -188,17 +194,18 @@ const deleteDBTokenOnAccessToken = async (access_token, supabaseClient) => {
 }
 
 const refreshOauthToken = async (app, token) => {
+  console.log(app)
+  const body  = new URLSearchParams();
+  body .append("grant_type", "refresh_token")
+  body .append("refresh_token", token)
+  body .append("client_id", app.client_id)
+  body .append("client_secret", app.client_secret)
   const refreshToken = await fetch("https://id.twitch.tv/oauth2/token", {
     "method": "POST",
     "headers": {
       "content-type": "application/x-www-form-urlencoded"
     },
-    "body": {
-      "grant_type": "refresh_token",
-      "refresh_token": token,
-      "client_id": app.client_id,
-      "client_secret": app.client_secret
-    }
+    body: body 
   })
 
   return refreshToken
