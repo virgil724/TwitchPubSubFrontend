@@ -141,11 +141,14 @@ onMounted(() => {
     sendOauthCode();
   }
 });
+
+// Access baseURL universally
 </script>
 
 <template>
+  {{ baseURL }}
   <!-- <v-btn @click="RevokeToken"></v-btn> -->
-  <v-form class="form-widget" @submit.prevent="updateProfile">
+  <v-form class="form-widget p-1" @submit.prevent="updateProfile">
     <div>
       <label for="email">Email</label>
       <v-text-field id="email" type="text" :value="user.email" disabled />
@@ -162,14 +165,14 @@ onMounted(() => {
     <div>
       <v-btn
         type="submit"
-        class="my-3"
+        class="my-2"
         :text="loading ? 'Loading ...' : 'Update'"
         :disabled="loading"
       />
     </div>
     <div
       v-if="username !== ''"
-      class="my-3"
+      class="my-2"
       @mouseover="setFalse"
       @mouseleave="SetTrue"
     >
@@ -183,13 +186,13 @@ onMounted(() => {
       <v-btn
         color="red"
         v-show="!ConnectDisable && TokenCount"
-        @click="DeleteToken"
+        @click="RevokeToken"
       >
         Delete Token?
       </v-btn>
     </div>
-    <div class="mt-2">
-      <v-btn @click="signOut" :disabled="loading">Sign Out</v-btn>
+    <div class="my-2">
+      <v-btn @click="signOut" :disabled="loading" color="red">Sign Out</v-btn>
     </div>
   </v-form>
 </template>

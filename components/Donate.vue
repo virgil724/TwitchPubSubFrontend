@@ -14,13 +14,16 @@ const update_autocompletevalue = () => {
   for (const item of donate.bits) {
     yearDates.add(item["year_date"]);
   }
+  for (const item of donate.KeepSubs) {
+    yearDates.add(item["year_date"]);
+  }
   autocomplete.value = [...yearDates];
 };
 
 let data;
 ({ data } = await supabase
-  .from("SubsSumNonGift")
-  .select("sub_month,user_name"));
+  .from("CumulativeSubs")
+  .select("user_name,cumulative_months,year_date"));
 if (data) {
   donate.KeepSubs = data;
 }
@@ -48,6 +51,14 @@ const filterGift = computed(() => {
     return item["year_date"] === filter.value;
   });
 });
+const filterSubs = computed(() => {
+  if (filter.value === null || filter.value === "") {
+    return donate.KeepSubs;
+  }
+  return donate.KeepSubs.filter((item) => {
+    return item["year_date"] === filter.value;
+  });
+});
 const filterBits = computed(() => {
   if (filter.value === null || filter.value === "") {
     return donate.bits;
@@ -57,11 +68,13 @@ const filterBits = computed(() => {
   });
 });
 const DonateDom = ref(null);
+const bg = ref(false);
 const DownloadPng = () => {
+  bg.value = false;
   toPng(DonateDom.value, { cacheBust: true })
     .then((dataUrl) => {
       const link = document.createElement("a");
-      link.download = "my-image-name.png";
+      link.download = "Donate.png";
       link.href = dataUrl;
       link.click();
     })
@@ -71,20 +84,35 @@ const DownloadPng = () => {
 };
 </script>
 <template>
-  <!-- <v-btn @click="DownloadPng">Download</v-btn> -->
-  <div ref="DonateDom">
+  <div class="justify-end flex">
+    <v-btn
+      @mouseover="bg = true"
+      @mouseleave="bg = false"
+      class="my-5"
+      @click="DownloadPng"
+      color="blue"
+      append-icon="mdi-monitor-screenshot"
+      >ScreenShot</v-btn
+    >
+  </div>
+  <div
+    :class="{ 'p-2': true, 'bg-gray-200': bg, rounded: true }"
+    ref="DonateDom"
+  >
     <v-card title="持續訂閱" class="my-5">
       <v-table>
         <thead>
           <tr>
             <th class="text-left">持續月份</th>
             <th class="text-left">贊助者帳號</th>
+            <th class="text-left">年-月</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in donate.KeepSubs" :key="item.user_name">
-            <td>{{ item.sub_month }}</td>
+          <tr v-for="item in filterSubs" :key="item.user_name">
+            <td>{{ item.cumulative_months }}</td>
             <td>{{ item.user_name }}</td>
+            <td>{{ item.year_date }}</td>
           </tr>
         </tbody>
       </v-table>
