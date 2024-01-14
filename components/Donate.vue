@@ -44,11 +44,17 @@ if (data) {
 }
 
 const filterGift = computed(() => {
+  
   if (filter.value === null || filter.value === "") {
+    
     return donate.GiftSubs;
   }
   return donate.GiftSubs.filter((item) => {
-    return item["year_date"] === filter.value;
+
+    if ( item["year_date"] === filter.value){
+      console.log(item)
+      return item
+    }
   });
 });
 const filterSubs = computed(() => {
@@ -109,7 +115,7 @@ const DownloadPng = () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in filterSubs" :key="item.user_name">
+          <tr v-for="item in filterSubs" :key="[item.user_name,item.year_date]">
             <td>{{ item.cumulative_months }}</td>
             <td>{{ item.user_name }}</td>
             <td>{{ item.year_date }}</td>
@@ -130,7 +136,7 @@ const DownloadPng = () => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in filterGift" :key="item.user_name">
+              <tr v-for="item in filterGift" :key="[item.user_name,item.year_date]">
                 <td>{{ item.gift_count }}</td>
                 <td>{{ item.user_name }}</td>
                 <td>{{ item.year_date }}</td>
@@ -151,7 +157,7 @@ const DownloadPng = () => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in filterBits" :key="item.user_name">
+              <tr v-for="item in filterBits" :key="[item.user_name,item.year_date]">
                 <td>{{ item.bits_used }}</td>
                 <td>{{ item.user_name }}</td>
                 <td>{{ item.year_date }}</td>
